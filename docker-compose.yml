@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  lb:
+    image: traefik # The official Traefik docker image
+    ports:
+      - "80:80"     # The HTTP port
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock #
+      - ./traefik/traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
+    command: --api --docker --logLevel=DEBUG
+    networks:
+      - proxy
+
+  app:
+    build: ./app/. # A container that exposes an API to show its IP address
+    # scale: 4
+    labels:
+      - traefik.backend=app
+      - "traefik.frontend.rule=Host:images.example.app"
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.port=3000
+    deploy:
+      replicas: 3
+    networks:
+      - internal
+      - proxy
+
+networks: 
+  proxy:
+    external: true
+  internal:
+    external: false
