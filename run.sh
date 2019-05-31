@@ -1,8 +1,6 @@
 #!/bin/bash
 
-touch acme.json
-
-chmod 600 acme.json 
+touch ./traefik/acme.json && chmod 600 ./traefik/acme.json 
 
 docker network create proxy
 

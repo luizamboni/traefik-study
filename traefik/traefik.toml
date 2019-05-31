@@ -1,8 +1,18 @@
-defaultEntryPoints = ["http"]
+defaultEntryPoints = ["https","http"]
 
 [entryPoints]
   [entryPoints.http]
   address = ":80"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+      [[entryPoints.https.tls.certificates]]
+      certFile = "/certificates/localhost.crt"
+      keyFile = "/certificates/localhost.key"
+
+
+[file]
+watch = true
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"

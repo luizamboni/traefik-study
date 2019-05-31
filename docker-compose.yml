@@ -4,19 +4,22 @@ services:
   lb:
     image: traefik # The official Traefik docker image
     ports:
-      - "80:80"     # The HTTP port
+      - "80:80"     # to receive and routes HTTP requests
+      - 443:443     # to receice and route HTTPs requests
       - "8080:8080" # The Web UI (enabled by --api)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock #
       - ./traefik/traefik.toml:/traefik.toml
-      - ./acme.json:/acme.json
+      - ./traefik/acme.json:/acme.json
+      - ./traefik/certs/localhost.crt:/certificates/localhost.crt
+      - ./traefik/certs/localhost.key:/certificates/localhost.key
+
     command: --api --docker --logLevel=DEBUG
     networks:
       - proxy
 
   app:
     build: ./app/. # A container that exposes an API to show its IP address
-    # scale: 4
     labels:
       - traefik.backend=app
       - "traefik.frontend.rule=Host:images.example.app"
