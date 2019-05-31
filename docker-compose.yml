@@ -4,9 +4,9 @@ services:
   lb:
     image: traefik # The official Traefik docker image
     ports:
-      - "80:80"     # to receive and routes HTTP requests
+      - 80:80     # to receive and routes HTTP requests
       - 443:443     # to receice and route HTTPs requests
-      - "8080:8080" # The Web UI (enabled by --api)
+      - 8080:8080 # The Web UI (enabled by --api)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock #
       - ./traefik/traefik.toml:/traefik.toml
@@ -18,11 +18,11 @@ services:
     networks:
       - proxy
 
-  app:
+  alive:
     build: ./app/. # A container that exposes an API to show its IP address
     labels:
-      - traefik.backend=app
-      - "traefik.frontend.rule=Host:images.example.app"
+      - traefik.backend=alive
+      - "traefik.frontend.rule=Host:alive.example.local"
       - traefik.enable=true
       - traefik.docker.network=proxy
       - traefik.port=3000
@@ -30,6 +30,26 @@ services:
     networks:
       - internal
       - proxy
+    environment:
+      - MESSAGE=Its alive
+      - PORT=3000
+
+  deadalive:
+    build: ./app/. # A container that exposes an API to show its IP address
+    labels:
+      - traefik.backend=deadalive
+      - "traefik.frontend.rule=Host:deadalive.example.local"
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.port=4000
+    scale: 2
+    networks:
+      - internal
+      - proxy
+    environment:
+      - MESSAGE="Its +- alive"
+      - PORT=4000
+
 
 networks: 
   proxy:
