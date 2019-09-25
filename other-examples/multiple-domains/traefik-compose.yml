@@ -1,0 +1,46 @@
+version: '2.2'
+
+services:
+  lb:
+    image: traefik:1.7-alpine
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080 # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock #
+      - ./traefik/traefik.toml:/traefik.toml
+      - ./traefik/servers.toml:/servers.toml
+
+      - ../../traefik/acme.json:/acme.json
+      - ../../traefik/certs/localhost.crt:/certificates/localhost.crt
+      - ../../traefik/certs/localhost.key:/certificates/localhost.key
+
+    command: --api --docker --logLevel=DEBUG
+    networks:
+      - proxy_net
+      - a_net
+      - b_net
+    labels:
+      - traefik.enable=false
+
+  # overwrite
+  a: 
+    environment:
+      - MESSAGE='a domain (modified service)'
+    networks:
+      - a
+      - proxy_net
+ 
+  b:
+    networks:
+      - b
+      - proxy_net
+
+networks: 
+  proxy_net:
+    external: true
+  a:
+    external: false
+  b: 
+    external: false

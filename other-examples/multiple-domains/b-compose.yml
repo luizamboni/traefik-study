@@ -1,0 +1,25 @@
+version: '2.2'
+
+services:
+  b:
+    build: ../../app/. # A container that exposes an API to show its IP address
+    labels:
+      - traefik.backend=b
+      - traefik.frontend.rule=Host:www.b.com.br
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.port=3000
+    scale: 1
+    networks:
+      - b_net
+      - proxy_net
+    environment:
+      - MESSAGE=b domain
+      - PORT=3000
+
+
+networks: 
+  proxy_net:
+    external: true
+  b_net:
+    external: true
